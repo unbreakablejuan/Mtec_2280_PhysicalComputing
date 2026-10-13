@@ -4,6 +4,11 @@
 const int potPin1 = 4;
 const int trigPin = 9;
 const int echoPin = 10;
+const int buttonPin = 8;  
+
+bool buttonState = 0;     //current button state
+bool lastButtonState = 0; //previous button state
+bool toggle = 0;          //toogle bool for rising edge, true = distance sensor disabled
 
 
 float duration, distance;
@@ -36,10 +41,13 @@ void setup() {
   pinMode(TFT_BL, OUTPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
   gfx->begin();
 
   analogReadResolution(2); //knocking resolution back to 8-bit to reduce jumpy pot read
   //showFace((Face)analogRead(potPin1)); //
+
+   for (int i = 0; i < numReads; i++) reading[i] = 999;  // changed: start as "nobody there"
 }
 
 void loop() {
@@ -49,6 +57,17 @@ void loop() {
   static uint32_t lastFadeStep = 0;
   const uint32_t FADE_STEP_MS = 8;         // <tweak length of fade here
 
+  buttonState = !digitalRead(buttonPin);
+
+//RISING EDGE DETECTION
+  //Detects the PRESS of a button
+  if (buttonState && !lastButtonState) //if button went from LOW to HIGH
+  {
+    toggle = !toggle; //flip toggle bool using NOT logic
+  }
+
+  lastButtonState = buttonState;  //store current button state for logic comparison at beginning of next loop
+
   int steps = (millis() - lastFadeStep) / FADE_STEP_MS;   // steps owed since last time
   if (steps > 0) {
     lastFadeStep += steps * FADE_STEP_MS;
@@ -57,7 +76,7 @@ void loop() {
     analogWrite(TFT_BL, brightness * brightness / 255);   // curve so the fade looks even
   }
 
-  // --- 2. everything below runs every 100 ms (replaces delay(100)) ---
+  // --- 2. everything below runs every 100 ms
   static uint32_t lastSample = 0;
   if (millis() - lastSample < 100) return;  // not time yet; the fade above keeps running
   lastSample = millis();
@@ -91,7 +110,7 @@ void loop() {
   static uint32_t lastSeen = 0;             // millis() when someone was last near
   static int lastFace = -1;
 
-  bool someoneThere = (avgDistance < 75);
+  bool someoneThere = toggle || (avgDistance < 75);
   if (someoneThere) lastSeen = millis();    // keep resetting the clock while they're there
 
   if (someoneThere && !screenOn) {          // someone just walked up
