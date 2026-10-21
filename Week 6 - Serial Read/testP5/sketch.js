@@ -16,13 +16,13 @@ NOTES:
 
 // Serial
 let serial;                              // instance of the serialport library
-let portName = '/dev/tty.usbmodem2101';   // fill in your serial port name here
+let portName = '/dev/tty.usbmodem101';   // fill in your serial port name here
 let options = { baudRate: 9600 };        // match the baud rate in your Arduino code
 let inData = 0;                          // latest incoming serial value (0-255)
 
 // Fire
-const FIRE_WIDTH = 150;
-const FIRE_HEIGHT = 150;
+const FIRE_WIDTH = 160;
+const FIRE_HEIGHT = 160;
 const MAX_INTENSITY = 64;                // sets base color to white and increases fire in proportion to fire height limit
 
 let firePixels = new Array(FIRE_WIDTH * FIRE_HEIGHT).fill(0);
