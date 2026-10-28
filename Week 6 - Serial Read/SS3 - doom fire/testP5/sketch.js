@@ -15,10 +15,9 @@ NOTES:
 */
 
 // Serial
-let serial;                              // instance of the serialport library
-let portName = '/dev/tty.usbmodem101';   // fill in your serial port name here
-let options = { baudRate: 9600 };        // match the baud rate in your Arduino code
-let inData = 0;                          // latest incoming serial value (0-255)
+let port;                       // variable for Web Serial port instance
+let baudRate = 115200;          // NOTE: baud rate must match in Arduino sketch
+let sensors = [0, 0, 0, 0];     // array for: [button1, button2, pot1, pot2]
 
 // Fire
 const FIRE_WIDTH = 160;
@@ -96,37 +95,4 @@ function renderFire() {
       rect(x * cellW, y * cellH, cellW, cellH);
     }
   }
-}
-
-// function windowResized() {
-//   resizeCanvas(windowWidth, windowHeight);
-// }
-
-// Serial callbacks
-
-function printList(portList) {
-  print('List of Available Serial Ports:');
-  for (let i = 0; i < portList.length; i++) {
-    print(i + ': ' + portList[i]);
-  }
-}
-
-function serverConnected() {
-  print('CONNECTED TO SERVER');
-}
-
-function portOpen() {
-  print('SERIAL PORT OPEN');
-}
-
-function serialEvent() {
-  inData = Number(serial.read());
-}
-
-function serialError(err) {
-  print('ERROR: ' + err);
-}
-
-function portClose() {
-  print('*____SERIAL PORT CLOSED');
 }
