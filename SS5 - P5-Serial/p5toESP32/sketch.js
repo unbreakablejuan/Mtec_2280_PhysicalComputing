@@ -8,9 +8,6 @@ let trackTop, trackBottom, trackLeft, trackRight; // sliders for top and bottom 
 let handleY;
 let angle;
 
-//let mic; // variable for microphone input
-
-
 let handleMin, handleMax;
 
 function setup() {
@@ -22,13 +19,13 @@ function setup() {
     handleMin = trackTop + 20;
     handleMax = trackBottom - 20;
     handleY = (trackTop + trackBottom) / 2;
+    angle = 90;
     textAlign(CENTER, CENTER);
     rectMode(CENTER);
     textSize(32);
     noStroke();
 
     //mic = new p5.AudioIn(); // create a new instance of the p5.AudioIn class to get mic input
-
 
     port = createSerial();                    // make a new serial port instance
     let used = usedSerialPorts();             // list ports used on this page before
@@ -46,10 +43,12 @@ function draw() {
     rect((trackLeft + trackRight) / 2, (trackTop + trackBottom) / 2, (trackRight - trackLeft), (trackBottom - trackTop), cr, cr, cr, cr);
     fill(0);
     rect((trackLeft + trackRight) / 2, handleY, 90, 40, cr/2, cr/2, cr/2, cr/2);
-  
-    //console.log(mic.getLevel());
+    textSize(32);
+    text('Angle:', width/2 - 100, height/2 - 20);
+    text(angle, width/2 - 100, height/2 + 20);
 
-    //console.log(mouseX, mouseY);
+    fill(255);
+    circle(width/2 + 200, height/2, 100);
     
 }
 
@@ -61,17 +60,19 @@ function mousePressed()
     port.open(baudRate); //...let the user pick a port by pressing any key
   }
 
-updateHandle();
+  if ((dist(mouseX, mouseY, width/2 + 200, height/2) ) < 50)  {
+     console.log("circle clicked");
+     angle = 90;                             // reset the angle
+     handleY = (trackTop + trackBottom) / 2; // move the handle back to the center
+     serialWrite();                          // move the servo to 90 too
+    }
 
-userStartAudio(); // start the audio context on user interaction
-mic.start(); // start the microphone input
-  
+updateHandle();
 }
 
 function mouseDragged() {
     updateHandle();
-  
-  }
+}
 
 
 function updateHandle() {
@@ -82,15 +83,13 @@ function updateHandle() {
     angle = constrain(angle, 0, 180);
     serialWrite();
     }
-    
+
     console.log(angle);
-
-
-  }
+}
 
 function serialWrite() {
   if (port.opened()) {
     port.write(angle); // send the angle value to the microcontroller
   }
   console.log("sent", angle);
-}   
+}
